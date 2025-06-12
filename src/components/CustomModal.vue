@@ -1,4 +1,3 @@
-<!-- components/CustomModal.vue -->
 <template>
   <dialog ref="dialogRef" class="modal" @close="emit('update:visible', false)">
     <div class="modal-box">
@@ -8,29 +7,49 @@
       </slot>
 
       <div class="modal-action">
-        <form method="dialog">
-          <slot name="close">
-            <button class="btn" @click.prevent="emit('update:visible', false)">Cerrar</button>
-          </slot>
+        <form @submit.prevent="handleSubmit">
+          <input
+            v-model="projectName"
+            type="text"
+            placeholder="Nombre del proyecto"
+            class="input input-bordered w-full max-w-xs"
+          />
+          <button type="submit" class="btn btn-primary">Agregar Proyecto</button>
+          <button type="button" class="btn" @click="emitClose">Cerrar</button>
         </form>
       </div>
     </div>
   </dialog>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, watch } from 'vue'
+import { useProjectsStore } from '@/stores/projects'
 
-const props = defineProps<{
-  visible: boolean
-}>()
+const props = defineProps({
+  visible: Boolean
+})
 
 const emit = defineEmits(['update:visible'])
 
-const dialogRef = ref<HTMLDialogElement | null>(null)
+const dialogRef = ref(null)
+const projectName = ref('')
+const projectsStore = useProjectsStore()
 
 watch(() => props.visible, (val) => {
   if (val) dialogRef.value?.showModal()
   else dialogRef.value?.close()
 })
+
+function emitClose() {
+  emit('update:visible', false)
+}
+
+function handleSubmit() {
+  if (projectName.value.trim()) {
+    projectsStore.addProject(projectName.value)
+    projectName.value = ''
+    emitClose()
+  }
+}
 </script>

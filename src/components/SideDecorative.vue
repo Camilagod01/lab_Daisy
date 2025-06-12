@@ -1,38 +1,35 @@
 <template>
-  <div class="w-64 min-h-full">
-    <!-- Encabezado -->
-    <h2 class="text-lg font-bold mb-1">Proyectos</h2>
-    <p class="text-sm text-gray-400 mb-4">No hay proyectos</p>
+  <div class="w-80 min-h-screen bg-base-200 p-4">
+    <ul class="menu text-base-content">
+      <li class="menu-title">
+        <span class="text-lg text-white">Proyectos</span>
+        <span class="text-sm opacity-50">
+          {{ projects.length === 0 ? 'No hay proyectos' : '' }}
+        </span>
+      </li>
 
-    <!-- Menú -->
-    <ul class="menu bg-base-300 rounded-box w-full">
-      <li><a>Item 1</a></li>
-
-      <li>
-        <details>
-          <summary>Parent</summary>
+      <li v-for="project in projects" :key="project.id">
+        <details v-if="project.tasks.length > 0">
+          <summary @click="selectProject(project.id)" class="cursor-pointer">
+            {{ project.name }}
+          </summary>
           <ul>
-            <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-
-            <li>
-              <details>
-                <summary>Parent</summary>
-                <ul>
-                  <li><a>Submenu 1</a></li>
-                  <li><a>Submenu 2</a></li>
-                </ul>
-              </details>
+            <li v-for="task in project.tasks" :key="task.id">
+              <a>{{ task.name }}</a>
             </li>
           </ul>
         </details>
+        <template v-else>
+          <a @click="selectProject(project.id)" class="cursor-pointer">
+            {{ project.name }}
+          </a>
+        </template>
       </li>
-
-      <li><a>Item 3</a></li>
     </ul>
   </div>
 </template>
 
-<script setup lang="ts">
-// Sin lógica JS, todo es HTML/CSS nativo con Daisy
+<script setup>
+import { useProjectsStore } from '@/stores/projects'
+const { projects, selectProject } = useProjectsStore()
 </script>
