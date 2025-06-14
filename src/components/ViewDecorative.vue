@@ -13,6 +13,7 @@
               <th>#</th>
               <th>Nombre</th>
               <th>Completado</th>
+              <th>Fecha</th>
             </tr>
           </thead>
           <tbody>
@@ -26,8 +27,16 @@
                 <input
                   type="checkbox"
                   class="checkbox checkbox-success"
-                  v-model="task.completed"
+                  :checked="task.completed"
+                  @change="toggleTaskCompletion(task)"
                 />
+              </td>
+
+              <td>
+                <span v-if="task.completedAt">
+                  {{ formatDate(task.completedAt) }}
+                </span>
+                <span v-else class="text-gray-400 italic">—</span>
               </td>
             </tr>
           </tbody>
@@ -115,10 +124,19 @@ function getProjectProgress(project) {
   return total === 0 ? 0 : Math.round((completed / total) * 100);
 }
 
+function toggleTaskCompletion(task) {
+  task.completed = !task.completed;
+  task.completedAt = task.completed ? new Date().toISOString() : null;
+}
+
+function formatDate(isoString) {
+  return new Date(isoString).toLocaleString();
+}
+
 watch(
   () => projectsStore.selectedProjectId,
   (val) => {
-    console.log("🧪 selectedProjectId cambió a:", val);
+    console.log(" selectedProjectId cambió a:", val);
   }
 );
 </script>

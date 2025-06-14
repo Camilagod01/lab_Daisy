@@ -6,6 +6,7 @@
     <!-- Contenedor principal: sidebar + vista -->
     <div class="flex flex-1 overflow-hidden">
       <!-- Sidebar -->
+       
       <div class="w-64 bg-base-300 p-4">
         <SideDecorative />
       </div>
