@@ -16,9 +16,14 @@
           <ul>
             <li v-for="task in project.tasks" :key="task.id">
               <a>{{ task.name }}</a>
+              
             </li>
+            
           </ul>
+
+          
         </details>
+        
         <template v-else>
           <a @click="selectProject(project.id)" class="cursor-pointer">
             {{ project.name }}
@@ -30,6 +35,15 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import { useProjectsStore } from '@/stores/projects'
 const { projects, selectProject } = useProjectsStore()
+
+watch(
+  () => projects.length,
+  (newLength) => {
+    console.log("Sidebar actualizado: cantidad de proyectos =", newLength)
+  }
+)
+
 </script>

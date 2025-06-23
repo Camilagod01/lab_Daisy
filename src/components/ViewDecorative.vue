@@ -14,6 +14,7 @@
               <th>Nombre</th>
               <th>Completado</th>
               <th>Fecha</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -22,7 +23,20 @@
               :key="task.id"
             >
               <td>{{ index + 1 }}</td>
-              <td>{{ task.name }}</td>
+              <td @dblclick="startEditingTask(task)">
+                <template v-if="editingTaskId === task.id">
+                  <input
+                    v-model="editedTaskName"
+                    @keyup.enter="saveTaskEdit(task)"
+                    @blur="cancelTaskEdit"
+                    class="input input-sm input-bordered w-full"
+                  />
+                </template>
+                <template v-else>
+                  {{ task.name }}
+                </template>
+              </td>
+
               <td>
                 <input
                   type="checkbox"
@@ -37,6 +51,12 @@
                   {{ formatDate(task.completedAt) }}
                 </span>
                 <span v-else class="text-gray-400 italic">—</span>
+              </td>
+
+              <td>
+                <button @click="deleteTask(task)" class="btn btn-xs btn-error">
+                  Eliminar
+                </button>
               </td>
             </tr>
           </tbody>
@@ -74,6 +94,7 @@
               <th>#</th>
               <th>Nombre</th>
               <th>Completado</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -82,8 +103,22 @@
               :key="project.id"
             >
               <th>{{ index + 1 }}</th>
-              <td>{{ project.name }}</td>
-              <td colspan="2">
+              <td>
+                <template v-if="editingProjectId === project.id">
+                  <input
+                    v-model="editedProjectName"
+                    @keyup.enter="saveProjectEdit(project)"
+                    @blur="cancelProjectEdit"
+                    class="input input-sm input-bordered w-full"
+                  />
+                </template>
+                <template v-else>
+                  <span @dblclick="startEditingProject(project)">{{
+                    project.name
+                  }}</span>
+                </template>
+              </td>
+        
                 <div class="flex items-center gap-2">
                   <progress
                     class="progress progress-success w-56"
@@ -92,6 +127,14 @@
                   ></progress>
                   <span>{{ getProjectProgress(project) }}%</span>
                 </div>
+             
+              <td>
+                <button
+                  @click="deleteProject(project)"
+                  class="btn btn-xs btn-error"
+                >
+                  Eliminar
+                </button>
               </td>
             </tr>
           </tbody>
@@ -108,6 +151,46 @@ import { useProjectsStore } from "@/stores/projects";
 const projectsStore = useProjectsStore();
 
 const newTaskName = ref("");
+
+const editingTaskId = ref(null);
+const editedTaskName = ref("");
+
+const editingProjectId = ref(null);
+const editedProjectName = ref("");
+
+function startEditingProject(project) {
+  editingProjectId.value = project.id;
+  editedProjectName.value = project.name;
+}
+
+function saveProjectEdit(project) {
+  if (editedProjectName.value.trim()) {
+    projectsStore.updateProjectName(project.id, editedProjectName.value.trim());
+  }
+  editingProjectId.value = null;
+}
+
+function cancelProjectEdit() {
+  editingProjectId.value = null;
+}
+
+function startEditingTask(task) {
+  editingTaskId.value = task.id;
+  editedTaskName.value = task.name;
+}
+
+function saveTaskEdit(task) {
+  projectsStore.updateTaskName(
+    projectsStore.selectedProjectId,
+    task.id,
+    editedTaskName.value.trim()
+  );
+  editingTaskId.value = null;
+}
+
+function cancelTaskEdit() {
+  editingTaskId.value = null;
+}
 
 function addTask() {
   const trimmed = newTaskName.value.trim();
@@ -132,6 +215,28 @@ function toggleTaskCompletion(task) {
 function formatDate(isoString) {
   return new Date(isoString).toLocaleString();
 }
+
+function deleteTask(task) {
+  const confirmDelete = window.confirm(
+    `¿Estás seguro de eliminar la tarea: "${task.name}"?`
+  );
+  if (confirmDelete) {
+    projectsStore.deleteTaskFromProject(
+      projectsStore.selectedProjectId,
+      task.id
+    );
+  }
+}
+
+function deleteProject(project) {
+  console.log("Métodos disponibles en store:", Object.keys(projectsStore));
+
+  const confirmDelete = window.confirm(`¿Estás seguro de eliminar el proyecto: "${project.name}"?`);
+  if (confirmDelete) {
+    projectsStore.deleteProject(project.id);
+  }
+}
+
 
 watch(
   () => projectsStore.selectedProjectId,

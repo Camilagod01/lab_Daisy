@@ -57,6 +57,43 @@ export const useProjectsStore = defineStore("projects", () => {
     }
   }
 
+  function updateProjectName(projectId, newName) {
+  const project = projects.value.find((p) => p.id === projectId);
+  if (project) {
+    project.name = newName;
+  }
+}
+
+function deleteTaskFromProject(projectId, taskId) {
+  const project = projects.value.find((p) => p.id === projectId);
+  if (project) {
+    project.tasks = project.tasks.filter((task) => task.id !== taskId);
+  }
+}
+
+function deleteProject(projectId) {
+  const updated = projects.value.filter((p) => p.id !== projectId);
+  projects.value = [...updated]; 
+
+  if (selectedProjectId.value === projectId) {
+    selectedProjectId.value = null;
+  }
+}
+
+
+
+
+function updateTaskName(projectId, taskId, newName) {
+  const project = projects.value.find((p) => p.id === projectId);
+  if (project) {
+    const task = project.tasks.find((t) => t.id === taskId);
+    if (task) {
+      task.name = newName;
+    }
+  }
+}
+
+
   const progress = computed(() => {
   if (!selectedProject.value) return 0;
   const tasks = selectedProject.value.tasks || [];
@@ -74,5 +111,9 @@ export const useProjectsStore = defineStore("projects", () => {
     deselectProject,
     addProject,
     addTaskToProject,
+    updateProjectName,
+    updateTaskName,
+    deleteTaskFromProject,
+    deleteProject,
   };
 });
